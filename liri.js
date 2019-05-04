@@ -1,19 +1,70 @@
 require("dotenv").config();
+var axios = require("axios");
 const keys = require("./keys.js");
-const spotify = new Spotify(keys.spotify);
+const ticketmaster = new ticketmaster(keys.ticketmaster);
+const OMDb = new OMDb(keys.OMDb);
+var fs = require("fs");
+
+fs.readFile("movies.txt", "utf8", function(error, data) {
+  if (error) {
+    return console.log(error);
+  }
+
+  console.log(data);
+  var dataArr = data.split(",");
+  console.log(dataArr);
+
+});
+var spotify = new Spotify(keys.spotify);
+ 
+var spotify = new Spotify({
+  id: process.env.SPOTIFY_ID,
+  secret: process.env.SPOTIFY_SECRET
+});
+ 
+spotify.search({ type: 'track', query: 'by Ace of Base' }, function(err, data) {
+  if (err) {
+    return console.log('Error occurred: ' + err);
+  }
+ 
+console.log(data); 
+});
+// ==============
+OMPD 
+
+var movieName = process.argv[2];
+var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=process.env.OMDb_Key";
+
+console.log(queryUrl);
+
+axios.get(queryUrl).then(
+  function(response) {
+    console.log("Release Year: " + response.data.Year);
+    console.log("The movie's rating is: " + response.data.imdbRating);
+  }
+);
+// ==================
+
+axios({
+  method:'get',
+  url:'https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/',
+  responseType:'concerts'
+})
+  .then(function(response) {
+  console.log(responde)
+});
+
+
 
 
 var options = {
-  provider: "spotify",
-//   apiKey: "https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/"
+  provider: "ticketmaster",
+  apiKey: "https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/"
 };
 
-// Get all elements in process.argv, starting from index 2 to the end
-// Join them into a string to get the space delimited concerts 
 var concerts  = process.argv.slice(2).join(" ");
 
-// Then use the Google spotify to spotify the concerts 
-spotify.spotify(concerts , function(err, data) {
+ticketmaster.ticketmaster(concerts , function(err, data) {
   console.log(JSON.stringify(data[0], null, 2));
 
   var concerts  = data[0];
@@ -58,11 +109,3 @@ spotify.spotify(concerts , function(err, data) {
   });
 });
 
-axios({
-    method:'get',
-    url:'http://www.omdbapi.com/?i=tt3896198&apikey=OMDb_Key',
-    responseType:'stream'
-  })
-    .then(function(response) {
-    response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'))
-  });
